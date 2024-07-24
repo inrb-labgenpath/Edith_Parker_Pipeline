@@ -24,7 +24,7 @@
 
 
 ## for every file in the list of files that matches this pattern -- remember the * wildcard?
-for f in *_R1.fastq; do
+for f in *R1.fastq; do
 
 ## we're going to do whatever come after this to every file that matches the filename pattern
 
@@ -75,8 +75,8 @@ for f in *_R1.fastq; do
 
 	## Run fastqc to assess the read quality of our fasts -- see tutorial
 	## BUT SPECIFICALLY the fastq files of our sample ID saved in s_ID!
-	# fastqc ${s_ID}_R1.fastq
-	# fastqc ${s_ID}_R2.fastq
+	fastqc ${s_ID}_R1.fastq
+	fastqc ${s_ID}_R2.fastq
 
 	## Remember what output we expect from this step? -- see tutorial
 	## let's create a new directory to move our fastqc quality reports there
@@ -84,11 +84,11 @@ for f in *_R1.fastq; do
 	## BUT we're going to use the variable with the sample ID to make a folder with our sample ID in
 	## We want to make a folder called e.g S1_fastqc_report or S2_fastqc_report 
 	## So we're going to use the vairable we created ${s_ID} with the sample ID in it
-	# mkdir ${s_ID}_fastqc_report
+	mkdir ${s_ID}_fastqc_report
 
 	# ## Now let's move our fastqc output to this new folder -- see tutorial for what these files are
-	# mv *.html ${s_ID}_fastqc_report
-	# mv *.zip ${s_ID}_fastqc_report
+	mv *.html ${s_ID}_fastqc_report
+	mv *.zip ${s_ID}_fastqc_report
 
 	## Okay, now we can trim and filder our fastq files
 	## All of these steps and input and output files are exactly the same as the tutorial
@@ -103,25 +103,6 @@ for f in *_R1.fastq; do
 
 	## Okay, so now we've got our trimmed read output
 	## Remember -- see tut -- we have 4 output fastqs -- 2 paired, 2 unpaired (reverse and forward reads from paired end sequencing)
-
-	## So let's clean up a bit
-
-	## LEt's compress our original raw fastqs
-
-	gzip ${s_ID}*.fastq
-
-	## Let's also compress our unpaired reads produced by Trimmomatic -- see tut for details
-
-	gzip ${s_ID}*_UP.fastq
-
-	## Let's make a new directory to move these read files to as we're done with them
-
-	mkdir ${s_ID}_fastqs
-
-	## Let's move the compressed fastq files to the new folder
-
-	mv ${s_ID}*.gz ${s_ID}_fastqs
-
 
 	## I'm also going to make a random folder called intermediates
 	## and I'm just going to move all the random files there that some of the programs produce, so we have them in one place
@@ -149,14 +130,6 @@ for f in *_R1.fastq; do
 	bwa mem -t 3 NC003310.fasta ${s_ID}_R1_P.fastq ${s_ID}_R2_P.fastq | samtools view -u -@ 3 - | samtools sort -@ 3 -o ${s_ID}.bam
 
 	## Okay, now that we have our bam we're done with our fastqs
-	## So, let's compress them to save space with gzip
-
-	gzip ${s_ID}*_P.fastq 
-
-	## And then move them to our fastqs folder
-	## remember ${s_ID}_fastqs will be S1_fastqs or S2_fastqs etc
-
-	mv ${s_ID}*.gz ${s_ID}_fastqs
 
 
 	## Now, let's generate our coverage files
@@ -214,6 +187,32 @@ for f in *_R1.fastq; do
 	## So at the end of this part of the loop, we're ready to move on to the next sample
 	## And run everything all over again for e.g. S2!
 
+	## So let's clean up a bit
+
+	## LEt's compress our original raw fastqs
+
+	gzip ${s_ID}*.fastq
+
+	## Let's also compress our unpaired reads produced by Trimmomatic -- see tut for details
+
+	gzip ${s_ID}*_UP.fastq
+
+	## Let's make a new directory to move these read files to as we're done with them
+
+	mkdir ${s_ID}_fastqs
+
+	## Let's move the compressed fastq files to the new folder
+
+	mv ${s_ID}*.gz ${s_ID}_fastqs
+	
+	## So, let's compress them to save space with gzip
+
+	gzip ${s_ID}*_P.fastq 
+
+	## And then move them to our fastqs folder
+	## remember ${s_ID}_fastqs will be S1_fastqs or S2_fastqs etc
+
+	mv ${s_ID}*.gz ${s_ID}_fastqs
 
 
 done
@@ -222,6 +221,6 @@ done
 ## And then when it's done, we'll clean up the remaining files:
 
 mkdir references
-mv NC003310.fasta.fa* references
+mv NC003310.fasta.* references
 mv Nextera_transpose.fasta references
 
